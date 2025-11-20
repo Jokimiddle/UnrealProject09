@@ -1,6 +1,8 @@
 #include "UI/BACChatInput.h"
 #include "Components/EditableTextBox.h"
 #include "Player/BACPlayerController.h"
+#include "Components/TextBlock.h"
+#include "Animation/WidgetAnimation.h"
 
 void UBACChatInput::NativeConstruct()
 {
@@ -18,6 +20,28 @@ void UBACChatInput::NativeDestruct()
 	{
 		EditableTextBox_ChatInput->OnTextCommitted.RemoveDynamic(this, &ThisClass::OnChatInputTextCommitted);
 	}
+}
+
+void UBACChatInput::UpdateNotificationText(const FString& InChatMessageString)
+{
+	if (IsValid(NotificationText) == false) return;
+	if (IsValid(Notification_Fadeout) == false) return;
+
+	NotificationText->SetVisibility(ESlateVisibility::HitTestInvisible);
+	if (IsAnimationPlaying(Notification_Fadeout) == true)
+	{
+		StopAnimation(Notification_Fadeout);
+	}
+
+	NotificationText->SetText(FText::FromString(InChatMessageString));
+	PlayAnimation(Notification_Fadeout);
+}
+
+void UBACChatInput::UpdateTimerValue(const FString& InTime)
+{
+	if (IsValid(TimerValue) == false) return;
+	FText Time = FText::FromString(InTime);
+	TimerValue->SetText(Time);
 }
 
 void UBACChatInput::OnChatInputTextCommitted(const FText& Text, ETextCommit::Type CommitMethod)
